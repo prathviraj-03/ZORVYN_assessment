@@ -35,10 +35,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ── Rate limiting ──────────────────────────────────────────────────────────────
-app.use('/api', generalLimiter);
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/forgot-password', authLimiter);
-app.use('/api/auth/reset-password', authLimiter);
+// Apply rate limiter only in production
+if (env.NODE_ENV === 'production') {
+  app.use('/api', generalLimiter);
+  app.use('/api/auth', authLimiter);
+  app.use('/api/auth/forgot-password', authLimiter);
+  app.use('/api/auth/reset-password', authLimiter);
+}
 
 // ── Health check ───────────────────────────────────────────────────────────────
 app.get('/health', async (_req: Request, res: Response) => {

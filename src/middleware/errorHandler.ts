@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+import { MulterError } from 'multer';
 import { AppError } from '@/lib/errors';
 import { env } from '@/config/env';
+
 
 export const errorHandler = (
   err: Error,
@@ -13,6 +15,16 @@ export const errorHandler = (
     res.status(err.statusCode).json({
       success: false,
       code: err.code,
+      message: err.message,
+    });
+    return;
+  }
+
+  // Multer errors (e.g., file size limit)
+  if (err instanceof MulterError) {
+    res.status(400).json({
+      success: false,
+      code: 'BAD_REQUEST',
       message: err.message,
     });
     return;
@@ -39,7 +51,9 @@ export const errorHandler = (
   }
 
   // Unknown error — don't leak internals in production
-  console.error('Unhandled error:', err);
+  if (env.NODE_ENV !== 'test') {
+    console.error('Unhandled error:', err);
+  }
 
   res.status(500).json({
     success: false,

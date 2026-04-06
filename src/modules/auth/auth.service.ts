@@ -12,6 +12,7 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
 } from './auth.schema';
+import { env } from 'process';
 
 export const authService = {
   // ── Register (public — always VIEWER) ───────────────────────────────────────
@@ -155,13 +156,18 @@ export const authService = {
     });
 
     // In production → send resetToken via email to user
-    // In dev → return it directly in the response so it can be tested
-    return {
-      ...safeResponse,
-      devOnly_resetToken: resetToken,
-      devOnly_note: 'This token is only visible in development. In production it would be emailed.',
-      expiresAt: resetTokenExpiry,
-    };
+    // In dev/test → return it directly so it can be tested
+    if (env.NODE_ENV !== 'production') {
+      return {
+        ...safeResponse,
+        devOnly_resetToken: resetToken,
+        devOnly_note:
+          'This token is only visible in non-production environments. In production it would be emailed.',
+        expiresAt: resetTokenExpiry,
+      };
+    }
+
+    return safeResponse;
   },
 
   // ── Reset password — use token to set new password ───────────────────────────

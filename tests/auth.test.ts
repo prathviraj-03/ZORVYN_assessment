@@ -451,6 +451,7 @@ describe('Auth', () => {
       });
 
       const forgot = await api.post('/api/auth/forgot-password').send({ email });
+      expect(forgot.status).toBe(200); // Ensure user exists and token was generated
       const resetToken = forgot.body.data.devOnly_resetToken as string;
 
       await prisma.user.update({
