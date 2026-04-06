@@ -209,7 +209,7 @@ describe('Records', () => {
       expect(res.body.data.failed.length).toBe(0);
     });
 
-    it('returns 500 INTERNAL_SERVER_ERROR when file exceeds the multer size limit (Option A)', async () => {
+    it('returns 400 BAD_REQUEST when file exceeds the multer size limit', async () => {
       const big = Buffer.alloc(5 * 1024 * 1024 + 1, 'a');
 
       const res = await api
@@ -220,8 +220,8 @@ describe('Records', () => {
           contentType: 'text/csv',
         });
 
-      expect(res.status).toBe(500);
-      expect(res.body.code).toBe('INTERNAL_SERVER_ERROR');
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe('BAD_REQUEST');
     });
   });
 
