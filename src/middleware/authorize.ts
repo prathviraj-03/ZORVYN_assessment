@@ -10,9 +10,7 @@ export const requireRole = (...roles: Role[]) => {
 
     if (!roles.includes(req.user.role)) {
       return next(
-        Errors.FORBIDDEN(
-          `This action requires one of the following roles: ${roles.join(', ')}`
-        )
+        Errors.FORBIDDEN(`This action requires one of the following roles: ${roles.join(', ')}`),
       );
     }
 

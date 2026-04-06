@@ -57,3 +57,5 @@ prisma/migrations/
 # uploads (if you store files locally)
 uploads/
 package-lock.json
+data.json
+*.csv

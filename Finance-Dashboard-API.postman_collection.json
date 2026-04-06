@@ -1,0 +1,917 @@
+{
+  "info": {
+    "_postman_id": "1988a897-619d-4814-b40f-c3873abfe256",
+    "name": "ZORVYN",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43991728",
+    "_collection_link": "https://go.postman.co/collection/43991728-1988a897-619d-4814-b40f-c3873abfe256?source=collection_link"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const token = pm.collectionVariables.get('token');",
+          "if (token) {",
+          "  pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+          "} else {",
+          "  pm.request.headers.remove('Authorization');",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "try {",
+          "  const json = pm.response.json();",
+          "  const token = json?.data?.token;",
+          "  if (token) pm.collectionVariables.set('token', token);",
+          "} catch (e) {}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "AUTH",
+      "item": [
+        {
+          "name": "register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\":     \"John Doe\",\r\n  \"email\":    \"john@example.com\",\r\n  \"password\": \"Password@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin login .env",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"admin@finance.com\",\r\n  \"password\": \"password123\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjowLCJpYXQiOjE3NzUzNjc3NTEsImV4cCI6MTc3NTk3MjU1MX0.g60ALvMnSM2qHdOO-QgVFFgPw38cyo8pOn3455YGDnc",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "change-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoxLCJpYXQiOjE3NzUzNjc5MjgsImV4cCI6MTc3NTk3MjcyOH0.d3-KIzc3Cx5EIIz7jJcgHgGJSp-K-k2AM9d3Nc0FtNI",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"oldPassword\": \"Admin@123456\",\r\n  \"newPassword\": \"NewSecure@456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/change-password",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "auth",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "forgot password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoxLCJpYXQiOjE3NzUzNjc5MjgsImV4cCI6MTc3NTk3MjcyOH0.d3-KIzc3Cx5EIIz7jJcgHgGJSp-K-k2AM9d3Nc0FtNI",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"john@company.com\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/forgot-password",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "reset password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoxLCJpYXQiOjE3NzUzNjc5MjgsImV4cCI6MTc3NTk3MjcyOH0.d3-KIzc3Cx5EIIz7jJcgHgGJSp-K-k2AM9d3Nc0FtNI",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"token\":       \"28fc9c002f9203cee039ea193ea72a11a3b53442a34ef08bafd3b7515dd5a9f9\",\r\n  \"newPassword\": \"NewSecure@789\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/reset-password",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Invite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjg0MzcsImV4cCI6MTc3NTk3MzIzN30.Toq7WwSQRI4OBupNWoCNl3QQpZI5Q4_mqyOCLECa3Xc",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"johnnJaneJon@company.com\",\r\n  \"role\":  \"ANALYST\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/invite",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "auth",
+                "invite"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register invite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjg0MzcsImV4cCI6MTc3NTk3MzIzN30.Toq7WwSQRI4OBupNWoCNl3QQpZI5Q4_mqyOCLECa3Xc",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"token\":    \"uuid-from-invite-response\",\r\n  \"name\":     \"John Doe\",\r\n  \"password\": \"Secure@Pass1\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/auth/register-invite",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "auth",
+                "register-invite"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "USERS",
+      "item": [
+        {
+          "name": "My prifile",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjkxMDUsImV4cCI6MTc3NTk3MzkwNX0.cuFOdt1wHihCe_tfPxZ1JBAf0jxXrgFkCFHH9ZUpXGA",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/users/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "All users < admin only",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjkxMDUsImV4cCI6MTc3NTk3MzkwNX0.cuFOdt1wHihCe_tfPxZ1JBAf0jxXrgFkCFHH9ZUpXGA",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/users?page=1&limit=10",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create user < admin directly",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjkxMDUsImV4cCI6MTc3NTk3MzkwNX0.cuFOdt1wHihCe_tfPxZ1JBAf0jxXrgFkCFHH9ZUpXGA",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\":     \"Jane Smith\",\r\n  \"email\":    \"jane@company.com\",\r\n  \"password\": \"Secure@Pass1\",\r\n  \"role\":     \"ANALYST\",\r\n  \"status\":   \"ACTIVE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update user < admin",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjkxMDUsImV4cCI6MTc3NTk3MzkwNX0.cuFOdt1wHihCe_tfPxZ1JBAf0jxXrgFkCFHH9ZUpXGA",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Agasthya\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/users/28462645-ce08-497c-ba71-c44379124ca1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "users",
+                "28462645-ce08-497c-ba71-c44379124ca1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete < admin",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjkxMDUsImV4cCI6MTc3NTk3MzkwNX0.cuFOdt1wHihCe_tfPxZ1JBAf0jxXrgFkCFHH9ZUpXGA",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/users/28462645-ce08-497c-ba71-c44379124ca1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "users",
+                "28462645-ce08-497c-ba71-c44379124ca1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "RECORDS",
+      "item": [
+        {
+          "name": "Create record < admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNzI2ODEsImV4cCI6MTc3NTk3NzQ4MX0.1lzjv5MUNhfo5o4XovuYF77XIjXFPDJWxL0bYJoicus",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"amount\":   85000.00,\r\n  \"type\":     \"INCOME\",\r\n  \"category\": \"Salary\",\r\n  \"date\":     \"2024-05-01\",\r\n  \"notes\":    \"Monthly salary\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/records",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "records"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "single record",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjkxMDUsImV4cCI6MTc3NTk3MzkwNX0.cuFOdt1wHihCe_tfPxZ1JBAf0jxXrgFkCFHH9ZUpXGA",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/records/8073a128-ea8b-4569-b4e8-aebae137628e",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "records",
+                "8073a128-ea8b-4569-b4e8-aebae137628e"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "All record",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjkxMDUsImV4cCI6MTc3NTk3MzkwNX0.cuFOdt1wHihCe_tfPxZ1JBAf0jxXrgFkCFHH9ZUpXGA",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/records?type=INCOME&page=1&limit=10\n",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "records"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "INCOME"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10\n"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update record",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjkxMDUsImV4cCI6MTc3NTk3MzkwNX0.cuFOdt1wHihCe_tfPxZ1JBAf0jxXrgFkCFHH9ZUpXGA",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"amount\":   90000,\r\n  \"category\": \"Bonus\",\r\n  \"notes\":    \"Q1 bonus\",\r\n  \"date\":     \"2024-06-01\",\r\n  \"type\":     \"EXPENSE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/records/8073a128-ea8b-4569-b4e8-aebae137628e",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "records",
+                "8073a128-ea8b-4569-b4e8-aebae137628e"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Soft delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjkxMDUsImV4cCI6MTc3NTk3MzkwNX0.cuFOdt1wHihCe_tfPxZ1JBAf0jxXrgFkCFHH9ZUpXGA",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/records/8073a128-ea8b-4569-b4e8-aebae137628e",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "records",
+                "8073a128-ea8b-4569-b4e8-aebae137628e"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk import",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzODA2NTgsImV4cCI6MTc3NTk4NTQ1OH0.9GhRzqNapEFj1Md_ludkHAvFCP0_nUArTkt9EGSD8Qg",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "uuid": "8ad0adae-a34d-4dcb-854f-51d66b5a4440",
+                  "src": "postman-cloud:///1f130d08-0dc7-4b60-9c00-1bc3fb3e5a01"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/records/import",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "records",
+                "import"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Export Data -> click send and download dropdown of send",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "DASHBOARD",
+      "item": [
+        {
+          "name": "Summary",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzNjkxMDUsImV4cCI6MTc3NTk3MzkwNX0.cuFOdt1wHihCe_tfPxZ1JBAf0jxXrgFkCFHH9ZUpXGA",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/dashboard/summary",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "dashboard",
+                "summary"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Categories",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzODA2NTgsImV4cCI6MTc3NTk4NTQ1OH0.9GhRzqNapEFj1Md_ludkHAvFCP0_nUArTkt9EGSD8Qg",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/dashboard/categories",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "dashboard",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "By trends",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3OTg5N2I3Ni01NTJhLTQ4N2MtOWFlMy1hMjQ3ZmZiOGJkYjMiLCJlbWFpbCI6ImFkbWluQGZpbmFuY2UuY29tIiwicm9sZSI6IkFETUlOIiwidG9rZW5WZXJzaW9uIjoyLCJpYXQiOjE3NzUzODA2NTgsImV4cCI6MTc3NTk4NTQ1OH0.9GhRzqNapEFj1Md_ludkHAvFCP0_nUArTkt9EGSD8Qg",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/dashboard/trends?period=monthly",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "dashboard",
+                "trends"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "monthly"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

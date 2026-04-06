@@ -1,0 +1,81 @@
+services:
+  # ─── Dev Database ──────────────────────────────────────────────
+  db:
+    image: postgres:16
+    container_name: finance-db
+    environment:
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB:       finance_dashboard
+    ports:
+      - "5432:5432"
+    volumes:
+      - finance_db_data:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # Hardcoded values — variable substitution is unreliable inside healthcheck arrays
+      test: ["CMD-SHELL", "pg_isready -U postgres -d finance_dashboard"]
+      interval: 5s
+      timeout: 3s
+      retries: 25
+    restart: unless-stopped
+
+  # ─── Test Database (isolated, in-memory) ───────────────────────
+  db-test:
+    image: postgres:16
+    container_name: finance-db-test
+    environment:
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB:       finance_dashboard_test
+    tmpfs:
+      - /var/lib/postgresql/data   # wiped automatically when container stops
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d finance_dashboard_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 25
+
+  # ─── API (dev) ─────────────────────────────────────────────────
+  api:
+    build: .
+    image: finance-dashboard-api
+    container_name: finance-api
+    env_file: .env           # JWT_SECRET, BOOTSTRAP_*, etc. come from here
+    environment:
+      NODE_ENV:     development
+      PORT:         "3000"
+      # DATABASE_URL built here so it always uses the correct docker service hostname
+      DATABASE_URL: "postgresql://postgres:password@db:5432/finance_dashboard"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: >
+      sh -c "npx prisma migrate deploy && npm run dev"
+    restart: unless-stopped
+
+  # ─── Test runner ───────────────────────────────────────────────
+  test:
+    build: .
+    image: finance-dashboard-api
+    container_name: finance-test
+    depends_on:
+      db-test:
+        condition: service_healthy
+    environment:
+      NODE_ENV:       test
+      PORT:           "3001"
+      DATABASE_URL:   "postgresql://postgres:postgres@db-test:5432/finance_dashboard_test"
+      JWT_SECRET:     "test_jwt_secret_at_least_16_chars"
+      JWT_EXPIRES_IN: "7d"
+    command: >
+      sh -c "npx prisma migrate deploy && npm test"
+    restart: "no"
+
+volumes:
+  finance_db_data:

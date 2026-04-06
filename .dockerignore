@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+*.log
+npm-debug.log*
+docker-compose*.yml
+.vscode
+.husky
+.env
+.env.*

@@ -12,7 +12,7 @@ export const validate =
       const errors = formatZodErrors(result.error);
       res.status(400).json({
         success: false,
-        code:    'VALIDATION_ERROR',
+        code: 'VALIDATION_ERROR',
         message: 'Invalid input',
         errors,
       });

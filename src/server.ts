@@ -1,10 +1,16 @@
 import { app } from './app';
 import { env } from '@/config/env';
+import { bootstrapAdmin } from '@/lib/bootstrap';
 
 const PORT = parseInt(env.PORT, 10);
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📄 Swagger docs at http://localhost:${PORT}/api/docs`);
-  console.log(`🌍 Environment: ${env.NODE_ENV}`);
-});
+async function main() {
+  await bootstrapAdmin();
+
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Environment: ${env.NODE_ENV}`);
+  });
+}
+
+main();

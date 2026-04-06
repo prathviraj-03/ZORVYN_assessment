@@ -1,18 +1,46 @@
+import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import { api, seedTestDb, cleanTestDb, getToken } from './helpers/testClient';
 
-let adminToken:   string;
+let adminToken: string;
 let analystToken: string;
-let viewerToken:  string;
+let viewerToken: string;
+
+const EXTRA_RECORDS = [
+  { amount: 2000, type: 'INCOME', category: 'Bonus', date: '2024-02-01', notes: 'Extra income' },
+  { amount: 300, type: 'EXPENSE', category: 'Food', date: '2024-02-10', notes: 'Extra expense' },
+  {
+    amount: 700,
+    type: 'INCOME',
+    category: 'Freelance',
+    date: '2024-03-01',
+    notes: 'Extra income 2',
+  },
+] as const;
 
 describe('Dashboard', () => {
   beforeAll(async () => {
     await seedTestDb(); // seeds 1 INCOME (5000) + 1 EXPENSE (1200)
-    adminToken   = await getToken('admin@test.com');
+    adminToken = await getToken('admin@test.com');
     analystToken = await getToken('analyst@test.com');
-    viewerToken  = await getToken('viewer@test.com');
+    viewerToken = await getToken('viewer@test.com');
+
+    // Add additional records across multiple months for deterministic trends
+    for (const r of EXTRA_RECORDS) {
+      const created = await api
+        .post('/api/records')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(r);
+      if (created.status !== 201) {
+        throw new Error(
+          `Failed to seed extra record: ${created.status} ${JSON.stringify(created.body)}`,
+        );
+      }
+    }
   });
 
-  afterAll(async () => { await cleanTestDb(); });
+  afterAll(async () => {
+    await cleanTestDb();
+  });
 
   // ── Summary ────────────────────────────────────────────────────────────────
   describe('GET /api/dashboard/summary', () => {
@@ -35,12 +63,13 @@ describe('Dashboard', () => {
         .get('/api/dashboard/summary')
         .set('Authorization', `Bearer ${adminToken}`);
       expect(res.status).toBe(200);
-      expect(res.body.data.totalIncome).toBe(5000);
-      expect(res.body.data.totalExpenses).toBe(1200);
-      expect(res.body.data.netBalance).toBe(3800);
+      expect(res.body.data.totalIncome).toBe(5000 + 2000 + 700);
+      expect(res.body.data.totalExpenses).toBe(1200 + 300);
+      expect(res.body.data.netBalance).toBe(5000 + 2000 + 700 - (1200 + 300));
       expect(res.body.data.netBalance).toBe(
-        res.body.data.totalIncome - res.body.data.totalExpenses
+        res.body.data.totalIncome - res.body.data.totalExpenses,
       );
+      expect(res.body.data.totalRecords).toBe(5);
     });
 
     it('returns 401 with no token', async () => {
@@ -89,6 +118,9 @@ describe('Dashboard', () => {
       expect(res.status).toBe(200);
       expect(res.body.data.period).toBe('monthly');
       expect(res.body.data.trends).toBeInstanceOf(Array);
+
+      const periods = res.body.data.trends.map((t: any) => t.period);
+      expect(periods).toEqual(expect.arrayContaining(['2024-01', '2024-02', '2024-03']));
     });
 
     it('returns weekly trends', async () => {
@@ -97,6 +129,7 @@ describe('Dashboard', () => {
         .set('Authorization', `Bearer ${analystToken}`);
       expect(res.status).toBe(200);
       expect(res.body.data.period).toBe('weekly');
+      expect(res.body.data.trends.length).toBeGreaterThan(1);
     });
 
     it('defaults to monthly for unknown period value', async () => {

@@ -24,16 +24,22 @@ enum RecordType {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
-  passwordHash String    @map("password_hash")
-  name         String
-  role         Role      @default(VIEWER)
-  status       Status    @default(ACTIVE)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id                 String    @id @default(uuid())
+  email              String    @unique
+  passwordHash       String    @map("password_hash")
+  name               String
+  role               Role      @default(VIEWER)
+  status             Status    @default(ACTIVE)
+  mustChangePassword Boolean   @default(false) @map("must_change_password")
+  tokenVersion       Int       @default(0) @map("token_version")
+  resetToken         String?   @map("reset_token")
+  resetTokenExpiry   DateTime? @map("reset_token_expiry")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
 
-  records FinancialRecord[]
+  records     FinancialRecord[]
+  sentInvites Invite[]          @relation("InviteCreator")
+  auditLogs   AuditLog[]
 
   @@map("users")
 }
@@ -53,4 +59,33 @@ model FinancialRecord {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("financial_records")
+}
+
+model Invite {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  role      Role     @default(VIEWER)
+  token     String   @unique @default(uuid())
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdBy String   @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  creator User @relation("InviteCreator", fields: [createdBy], references: [id])
+
+  @@map("invites")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  action    String
+  entity    String
+  entityId  String   @map("entity_id")
+  changes   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
 }

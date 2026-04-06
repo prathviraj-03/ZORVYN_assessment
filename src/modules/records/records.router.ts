@@ -6,161 +6,114 @@ import {
   recordIdParamSchema,
   recordFilterSchema,
 } from './records.schema';
-import { authenticate }  from '@/middleware/authenticate';
-import { requireRole }   from '@/middleware/authorize';
-import { validate }      from '@/middleware/validate';
-import { Role }          from '@prisma/client';
+import { authenticate } from '@/middleware/authenticate';
+import { requireRole } from '@/middleware/authorize';
+import { validate } from '@/middleware/validate';
+import { Role } from '@prisma/client';
+import { importUpload } from '@/middleware/upoad';
+import { Errors } from '@/lib/errors';
 
 const router = Router();
 
-// All records routes require a valid JWT
 router.use(authenticate);
 
-/**
- * @swagger
- * tags:
- *   name: Records
- *   description: Financial records management
- */
+// ── Import ────────────────────────────────────────────────────────────────────
+// ADMIN-only. importUpload enforces the multer file-size limit you set in
+// the middleware — make sure it's ≤ a few MB so a huge file never reaches
+// importRecords, which would try to parse all rows into memory at once.
+router.post(
+  '/import',
+  requireRole(Role.ADMIN),
+  importUpload.single('file'),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.file) {
+        return next(
+          Errors.BAD_REQUEST('No file uploaded. Send a .csv or .json file under the key "file"'),
+        );
+      }
+      const result = await recordsService.importRecords(req.file, req.user!.id);
+      res.status(200).json({
+        success: true,
+        message: `Import complete. ${result.imported} of ${result.total} records inserted.`,
+        data: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
-/**
- * @swagger
- * /api/records:
- *   get:
- *     summary: Get all financial records with optional filters
- *     tags: [Records]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: type
- *         schema:
- *           type: string
- *           enum: [INCOME, EXPENSE]
- *       - in: query
- *         name: category
- *         schema:
- *           type: string
- *       - in: query
- *         name: from
- *         schema:
- *           type: string
- *           format: date
- *           example: "2024-01-01"
- *       - in: query
- *         name: to
- *         schema:
- *           type: string
- *           format: date
- *           example: "2024-12-31"
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *     responses:
- *       200:
- *         description: Paginated and filtered list of records
- *       401:
- *         description: Unauthorized
- */
+// ── Export ────────────────────────────────────────────────────────────────────
+// FIX 1: was missing requireRole — any authenticated user could dump the full
+//         table. Restricted to ADMIN.
+// FIX 2: was accepting raw req.query with no validation. Now runs through
+//         recordFilterSchema (page/limit fields are stripped in the service
+//         layer before the query reaches Prisma).
+// FIX 3: exportRecords itself is now streaming (see service) so this handler
+//         no longer waits for the entire CSV string to be built in memory.
+router.get(
+  '/export',
+  requireRole(Role.ADMIN),
+  validate(recordFilterSchema, 'query'),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const filters = {
+        type: req.query.type as string | undefined,
+        category: req.query.category as string | undefined,
+        from: req.query.from as string | undefined,
+        to: req.query.to as string | undefined,
+      };
+
+      const date = new Date().toISOString().split('T')[0];
+      const typePart = filters.type ? `_${filters.type.toLowerCase()}` : '';
+      const filename = `records${typePart}_${date}.csv`;
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.status(200);
+
+      // exportRecords now returns a Node.js Readable stream — pipe it directly
+      // to the response so rows are flushed as they come off the DB cursor
+      // instead of being buffered into one giant string.
+      const stream = await recordsService.exportRecords(filters as any);
+      stream.pipe(res);
+      stream.on('error', next);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// ── List ──────────────────────────────────────────────────────────────────────
 router.get(
   '/',
   validate(recordFilterSchema, 'query'),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await recordsService.getAll(req.query as any);
-      res.status(200).json({
-        success: true,
-        data:    result,
-      });
+      res.status(200).json({ success: true, data: result });
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
-/**
- * @swagger
- * /api/records/{id}:
- *   get:
- *     summary: Get a single financial record by ID
- *     tags: [Records]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Financial record found
- *       404:
- *         description: Record not found
- */
+// ── Get by ID ─────────────────────────────────────────────────────────────────
 router.get(
   '/:id',
   validate(recordIdParamSchema, 'params'),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const record = await recordsService.getById(req.params.id);
-      res.status(200).json({
-        success: true,
-        data:    { record },
-      });
+      res.status(200).json({ success: true, data: { record } });
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
-/**
- * @swagger
- * /api/records:
- *   post:
- *     summary: Create a new financial record (admin only)
- *     tags: [Records]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [amount, type, category, date]
- *             properties:
- *               amount:
- *                 type: number
- *                 example: 5000.00
- *               type:
- *                 type: string
- *                 enum: [INCOME, EXPENSE]
- *               category:
- *                 type: string
- *                 example: Salary
- *               date:
- *                 type: string
- *                 format: date
- *                 example: "2024-04-01"
- *               notes:
- *                 type: string
- *                 example: Monthly salary payment
- *     responses:
- *       201:
- *         description: Record created successfully
- *       400:
- *         description: Validation error
- *       403:
- *         description: Forbidden
- */
+// ── Create ────────────────────────────────────────────────────────────────────
 router.post(
   '/',
   requireRole(Role.ADMIN),
@@ -171,53 +124,15 @@ router.post(
       res.status(201).json({
         success: true,
         message: 'Financial record created successfully',
-        data:    { record },
+        data: { record },
       });
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
-/**
- * @swagger
- * /api/records/{id}:
- *   patch:
- *     summary: Update a financial record (admin only)
- *     tags: [Records]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               amount:
- *                 type: number
- *               type:
- *                 type: string
- *                 enum: [INCOME, EXPENSE]
- *               category:
- *                 type: string
- *               date:
- *                 type: string
- *                 format: date
- *               notes:
- *                 type: string
- *     responses:
- *       200:
- *         description: Record updated successfully
- *       404:
- *         description: Record not found
- */
+// ── Update ────────────────────────────────────────────────────────────────────
 router.patch(
   '/:id',
   requireRole(Role.ADMIN),
@@ -229,34 +144,15 @@ router.patch(
       res.status(200).json({
         success: true,
         message: 'Financial record updated successfully',
-        data:    { record },
+        data: { record },
       });
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
-/**
- * @swagger
- * /api/records/{id}:
- *   delete:
- *     summary: Soft delete a financial record (admin only)
- *     tags: [Records]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Record soft deleted — remains in DB with is_deleted=true
- *       404:
- *         description: Record not found
- */
+// ── Delete ────────────────────────────────────────────────────────────────────
 router.delete(
   '/:id',
   requireRole(Role.ADMIN),
@@ -271,7 +167,7 @@ router.delete(
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
 export { router as recordsRouter };

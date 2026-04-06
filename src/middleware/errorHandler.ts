@@ -6,13 +6,13 @@ export const errorHandler = (
   err: Error,
   _req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ): void => {
   // Known operational error — safe to expose to client
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
       success: false,
-      code:    err.code,
+      code: err.code,
       message: err.message,
     });
     return;
@@ -22,7 +22,7 @@ export const errorHandler = (
   if (isPrismaError(err, 'P2002')) {
     res.status(409).json({
       success: false,
-      code:    'CONFLICT',
+      code: 'CONFLICT',
       message: 'A record with this value already exists',
     });
     return;
@@ -32,7 +32,7 @@ export const errorHandler = (
   if (isPrismaError(err, 'P2025')) {
     res.status(404).json({
       success: false,
-      code:    'NOT_FOUND',
+      code: 'NOT_FOUND',
       message: 'Record not found',
     });
     return;
@@ -43,10 +43,8 @@ export const errorHandler = (
 
   res.status(500).json({
     success: false,
-    code:    'INTERNAL_SERVER_ERROR',
-    message: env.NODE_ENV === 'production'
-      ? 'Something went wrong'
-      : err.message,
+    code: 'INTERNAL_SERVER_ERROR',
+    message: env.NODE_ENV === 'production' ? 'Something went wrong' : err.message,
   });
 };
 

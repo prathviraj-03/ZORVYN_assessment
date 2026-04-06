@@ -1,49 +1,23 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { authService } from './auth.service';
-import { registerSchema, loginSchema } from './auth.schema';
+import {
+  registerSchema,
+  loginSchema,
+  inviteSchema,
+  registerInviteSchema,
+  changePasswordSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from './auth.schema';
 import { validate } from '@/middleware/validate';
+import { authenticate } from '@/middleware/authenticate';
+import { requireRole } from '@/middleware/authorize';
+import { Role } from '@prisma/client';
 
 const router = Router();
 
-/**
- * @swagger
- * tags:
- *   name: Auth
- *   description: Authentication endpoints
- */
+// ── Register ───────────────────────────────────────────────────────────────────
 
-/**
- * @swagger
- * /api/auth/register:
- *   post:
- *     summary: Register a new user account
- *     tags: [Auth]
- *     security: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [name, email, password]
- *             properties:
- *               name:
- *                 type: string
- *                 example: John Doe
- *               email:
- *                 type: string
- *                 example: john@example.com
- *               password:
- *                 type: string
- *                 example: password123
- *     responses:
- *       201:
- *         description: User registered successfully
- *       400:
- *         description: Validation error
- *       409:
- *         description: Email already exists
- */
 router.post(
   '/register',
   validate(registerSchema),
@@ -52,44 +26,17 @@ router.post(
       const user = await authService.register(req.body);
       res.status(201).json({
         success: true,
-        message: 'Account created successfully',
-        data:    { user },
+        message: 'Account created successfully. You have been assigned the VIEWER role.',
+        data: { user },
       });
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
-/**
- * @swagger
- * /api/auth/login:
- *   post:
- *     summary: Login and receive a JWT token
- *     tags: [Auth]
- *     security: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [email, password]
- *             properties:
- *               email:
- *                 type: string
- *                 example: admin@finance.com
- *               password:
- *                 type: string
- *                 example: password123
- *     responses:
- *       200:
- *         description: Login successful, returns JWT token
- *       401:
- *         description: Invalid credentials
- *       403:
- *         description: Account is inactive
- */
+// ── Login ──────────────────────────────────────────────────────────────────────
+
 router.post(
   '/login',
   validate(loginSchema),
@@ -99,12 +46,121 @@ router.post(
       res.status(200).json({
         success: true,
         message: 'Login successful',
-        data:    result,
+        data: result,
       });
     } catch (err) {
       next(err);
     }
+  },
+);
+
+// Logout
+router.post('/logout', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await authService.logout(req.user!.id);
+    res.status(200).json({
+      success: true,
+      message: 'Logged out successfully. Your token has been invalidated.',
+    });
+  } catch (err) {
+    next(err);
   }
+});
+
+// ── Change password (logged in user) ──────────────────────────────────────────
+
+router.post(
+  '/change-password',
+  authenticate,
+  validate(changePasswordSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await authService.changePassword(req.user!.id, req.body);
+      res.status(200).json({
+        success: true,
+        message: 'Password changed successfully',
+        data: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// ── Forgot password ────────────────────────────────────────────────────────────
+
+router.post(
+  '/forgot-password',
+  validate(forgotPasswordSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await authService.forgotPassword(req.body);
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// ── Reset password ─────────────────────────────────────────────────────────────
+
+router.post(
+  '/reset-password',
+  validate(resetPasswordSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await authService.resetPassword(req.body);
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// ── Send Invite (admin only) ───────────────────────────────────────────────────
+
+router.post(
+  '/invite',
+  authenticate,
+  requireRole(Role.ADMIN),
+  validate(inviteSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await authService.sendInvite(req.body, req.user!.id);
+      res.status(201).json({
+        success: true,
+        message: `Invite created for ${req.body.email} with role ${req.body.role}`,
+        data: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// ── Register via Invite ────────────────────────────────────────────────────────
+
+router.post(
+  '/register-invite',
+  validate(registerInviteSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = await authService.registerViaInvite(req.body);
+      res.status(201).json({
+        success: true,
+        message: `Account created successfully. You have been assigned the ${user.role} role.`,
+        data: { user },
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 );
 
 export { router as authRouter };

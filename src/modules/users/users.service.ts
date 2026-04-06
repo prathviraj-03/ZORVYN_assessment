@@ -5,11 +5,11 @@ import { CreateUserDto, UpdateUserDto } from './users.schema';
 
 // Reusable select — never expose passwordHash to client
 const safeUserSelect = {
-  id:        true,
-  name:      true,
-  email:     true,
-  role:      true,
-  status:    true,
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  status: true,
   createdAt: true,
   updatedAt: true,
 } as const;
@@ -17,7 +17,7 @@ const safeUserSelect = {
 export const usersService = {
   async getMe(userId: string) {
     const user = await prisma.user.findUnique({
-      where:  { id: userId },
+      where: { id: userId },
       select: safeUserSelect,
     });
 
@@ -32,8 +32,8 @@ export const usersService = {
     const [users, total] = await prisma.$transaction([
       prisma.user.findMany({
         skip,
-        take:    limit,
-        select:  safeUserSelect,
+        take: limit,
+        select: safeUserSelect,
         orderBy: { createdAt: 'desc' },
       }),
       prisma.user.count(),
@@ -63,10 +63,10 @@ export const usersService = {
 
     const user = await prisma.user.create({
       data: {
-        name:   dto.name,
-        email:  dto.email,
+        name: dto.name,
+        email: dto.email,
         passwordHash,
-        role:   dto.role,
+        role: dto.role,
         status: dto.status,
       },
       select: safeUserSelect,
@@ -83,8 +83,8 @@ export const usersService = {
     if (!existing) throw Errors.NOT_FOUND('User');
 
     const user = await prisma.user.update({
-      where:  { id },
-      data:   dto,
+      where: { id },
+      data: dto,
       select: safeUserSelect,
     });
 
