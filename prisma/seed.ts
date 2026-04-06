@@ -4,16 +4,16 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database...');
+  console.log('Seeding database...');
 
-  // ── Clean existing data ──────────────────────────────────────────────────────
+  // Clean existing data
   await prisma.financialRecord.deleteMany();
   await prisma.user.deleteMany();
 
-  // ── Hash password ────────────────────────────────────────────────────────────
+  // Hash password
   const password = await bcrypt.hash('password123', 10);
 
-  // ── Create users ─────────────────────────────────────────────────────────────
+  // Create users
   const admin = await prisma.user.create({
     data: {
       email: 'admin@finance.com',
@@ -44,9 +44,9 @@ async function main() {
     },
   });
 
-  console.log('✅ Created 3 users');
+  console.log('Created 3 users');
 
-  // ── Create financial records ─────────────────────────────────────────────────
+  // Create financial records
   const records = [
     // January
     {
@@ -208,9 +208,9 @@ async function main() {
     })),
   });
 
-  console.log(`✅ Created ${records.length} financial records`);
+  console.log(`Created ${records.length} financial records`);
 
-  console.log('\n📋 Seed credentials:');
+  console.log('\n Seed credentials:');
   console.log('  admin@finance.com   / password123  (ADMIN)');
   console.log('  analyst@finance.com / password123  (ANALYST)');
   console.log('  viewer@finance.com  / password123  (VIEWER)');
@@ -218,7 +218,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error('❌ Seed failed:', e);
+    console.error(' Seed failed:', e);
     process.exit(1);
   })
   .finally(async () => {

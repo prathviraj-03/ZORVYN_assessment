@@ -1,5 +1,5 @@
 services:
-  # ─── Dev Database ──────────────────────────────────────────────
+  # Dev Database
   db:
     image: postgres:16
     container_name: finance-db
@@ -20,7 +20,7 @@ services:
       retries: 25
     restart: unless-stopped
 
-  # ─── Test Database (isolated, in-memory) ───────────────────────
+  # Test Database (isolated, in-memory)
   db-test:
     image: postgres:16
     container_name: finance-db-test
@@ -36,7 +36,7 @@ services:
       timeout: 3s
       retries: 25
 
-  # ─── API (dev) ─────────────────────────────────────────────────
+  # API (dev)
   api:
     build: .
     image: finance-dashboard-api
@@ -59,7 +59,7 @@ services:
       sh -c "npx prisma migrate deploy && npm run dev"
     restart: unless-stopped
 
-  # ─── Test runner ───────────────────────────────────────────────
+  # Test runner
   test:
     build: .
     image: finance-dashboard-api

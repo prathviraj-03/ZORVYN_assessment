@@ -20,10 +20,10 @@ RUN npm ci
 # Copy source
 COPY . .
 
-# Generate Prisma client at build time — not repeated at container startup
+# Generate Prisma client at build time - not repeated at container startup
 RUN npx prisma generate
 
 EXPOSE 3000
 
-# Default command — overridden per service in docker-compose.yml
+# Default command - overridden per service in docker-compose.yml
 CMD ["npm", "run", "dev"]

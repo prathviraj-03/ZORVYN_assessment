@@ -7,7 +7,7 @@ import csv from 'csv-parser';
 import { Readable, PassThrough } from 'stream';
 import { importRecordRowSchema, ImportRecordRowDto } from './records.schema';
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+// Constants
 
 // Hard cap on how many rows importRecords will accept in a single call.
 // This is your last line of defence if the multer file-size limit is
@@ -17,7 +17,7 @@ const IMPORT_ROW_LIMIT = 5_000;
 // How many rows to pull per DB round-trip during streaming export.
 const EXPORT_CURSOR_BATCH = 500;
 
-// ── Safe select ───────────────────────────────────────────────────────────────
+// Safe select
 
 const safeRecordSelect = {
   id: true,
@@ -38,7 +38,7 @@ const safeRecordSelect = {
   },
 } as const;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// Helpers
 
 /**
  * Escape a single CSV field value.
@@ -79,10 +79,10 @@ function buildWhere(filters: {
   };
 }
 
-// ── Service ───────────────────────────────────────────────────────────────────
+// Service
 
 export const recordsService = {
-  // ── getAll ──────────────────────────────────────────────────────────────────
+  // getAll
   // Pagination is enforced by recordFilterSchema (page ≥ 1, 1 ≤ limit ≤ 100),
   // so this query is always bounded.
   async getAll(filters: RecordFilterDto) {
@@ -112,7 +112,7 @@ export const recordsService = {
     };
   },
 
-  // ── getById ─────────────────────────────────────────────────────────────────
+  // getById
   async getById(id: string) {
     const record = await prisma.financialRecord.findFirst({
       where: { id, isDeleted: false },
@@ -122,7 +122,7 @@ export const recordsService = {
     return record;
   },
 
-  // ── create ──────────────────────────────────────────────────────────────────
+  // create
   async create(dto: CreateRecordDto, userId: string) {
     const record = await prisma.financialRecord.create({
       data: {
@@ -139,7 +139,7 @@ export const recordsService = {
     return record;
   },
 
-  // ── update ──────────────────────────────────────────────────────────────────
+  // update
   async update(id: string, dto: UpdateRecordDto) {
     const existing = await prisma.financialRecord.findFirst({
       where: { id, isDeleted: false },
@@ -158,7 +158,7 @@ export const recordsService = {
     return record;
   },
 
-  // ── softDelete ──────────────────────────────────────────────────────────────
+  // softDelete
   async softDelete(id: string) {
     const existing = await prisma.financialRecord.findFirst({
       where: { id, isDeleted: false },
@@ -172,7 +172,7 @@ export const recordsService = {
     await auditLog(existing.userId, 'DELETE_RECORD', 'FinancialRecord', id);
   },
 
-  // ── exportRecords ───────────────────────────────────────────────────────────
+  // exportRecords
   // FIX — was a single unbounded findMany that loaded the entire result set
   // into memory before building the CSV string. At scale this OOMs the process.
   //
@@ -264,7 +264,7 @@ export const recordsService = {
     return stream;
   },
 
-  // ── importRecords ───────────────────────────────────────────────────────────
+  // importRecords
   // FIX: added IMPORT_ROW_LIMIT guard before any parsing or DB work.
   // Without this, a 500 k-row file would pass multer's byte-size check
   // (lots of short rows), then explode createMany into a single enormous

@@ -16,7 +16,7 @@ import { Role } from '@prisma/client';
 
 const router = Router();
 
-// ── Register ───────────────────────────────────────────────────────────────────
+// Register
 
 router.post(
   '/register',
@@ -35,7 +35,7 @@ router.post(
   },
 );
 
-// ── Login ──────────────────────────────────────────────────────────────────────
+// Login
 
 router.post(
   '/login',
@@ -67,7 +67,7 @@ router.post('/logout', authenticate, async (req: Request, res: Response, next: N
   }
 });
 
-// ── Change password (logged in user) ──────────────────────────────────────────
+// Change password (logged in user)
 
 router.post(
   '/change-password',
@@ -87,7 +87,7 @@ router.post(
   },
 );
 
-// ── Forgot password ────────────────────────────────────────────────────────────
+// Forgot password
 
 router.post(
   '/forgot-password',
@@ -105,7 +105,7 @@ router.post(
   },
 );
 
-// ── Reset password ─────────────────────────────────────────────────────────────
+// Reset password
 
 router.post(
   '/reset-password',
@@ -123,7 +123,7 @@ router.post(
   },
 );
 
-// ── Send Invite (admin only) ───────────────────────────────────────────────────
+// Send Invite (admin only)
 
 router.post(
   '/invite',
@@ -144,7 +144,7 @@ router.post(
   },
 );
 
-// ── Register via Invite ────────────────────────────────────────────────────────
+// Register via Invite
 
 router.post(
   '/register-invite',

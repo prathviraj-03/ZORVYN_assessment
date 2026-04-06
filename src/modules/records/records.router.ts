@@ -17,7 +17,7 @@ const router = Router();
 
 router.use(authenticate);
 
-// ── Import ────────────────────────────────────────────────────────────────────
+// Import
 // ADMIN-only. importUpload enforces the multer file-size limit you set in
 // the middleware — make sure it's ≤ a few MB so a huge file never reaches
 // importRecords, which would try to parse all rows into memory at once.
@@ -44,7 +44,7 @@ router.post(
   },
 );
 
-// ── Export ────────────────────────────────────────────────────────────────────
+// Export
 // FIX 1: was missing requireRole — any authenticated user could dump the full
 //         table. Restricted to ADMIN.
 // FIX 2: was accepting raw req.query with no validation. Now runs through
@@ -85,7 +85,7 @@ router.get(
   },
 );
 
-// ── List ──────────────────────────────────────────────────────────────────────
+// List
 router.get(
   '/',
   validate(recordFilterSchema, 'query'),
@@ -99,7 +99,7 @@ router.get(
   },
 );
 
-// ── Get by ID ─────────────────────────────────────────────────────────────────
+// Get by ID
 router.get(
   '/:id',
   validate(recordIdParamSchema, 'params'),
@@ -113,7 +113,7 @@ router.get(
   },
 );
 
-// ── Create ────────────────────────────────────────────────────────────────────
+// Create
 router.post(
   '/',
   requireRole(Role.ADMIN),
@@ -132,7 +132,7 @@ router.post(
   },
 );
 
-// ── Update ────────────────────────────────────────────────────────────────────
+// Update
 router.patch(
   '/:id',
   requireRole(Role.ADMIN),
@@ -152,7 +152,7 @@ router.patch(
   },
 );
 
-// ── Delete ────────────────────────────────────────────────────────────────────
+// Delete
 router.delete(
   '/:id',
   requireRole(Role.ADMIN),

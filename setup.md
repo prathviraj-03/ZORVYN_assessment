@@ -161,8 +161,8 @@ npm run dev
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `DATABASE_URL` | ✅ | Postgres connection string |
-| `JWT_SECRET` | ✅ | Min 16 characters |
+| `DATABASE_URL` | Yes | Postgres connection string |
+| `JWT_SECRET` | Yes | Min 16 characters |
 | `JWT_EXPIRES_IN` | No | Default: `7d` |
 | `BOOTSTRAP_ADMIN_EMAIL` | No | Auto-creates first admin |
 | `BOOTSTRAP_ADMIN_PASSWORD` | No | Min 8 chars |

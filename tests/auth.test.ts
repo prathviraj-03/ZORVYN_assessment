@@ -38,7 +38,7 @@ describe('Auth', () => {
     await prisma.$disconnect();
   });
 
-  // ── Register ───────────────────────────────────────────────────────────────
+  // Register
   describe('POST /api/auth/register', () => {
     it('returns 201 and creates a user with default VIEWER role', async () => {
       const res = await api.post('/api/auth/register').send({
@@ -80,7 +80,7 @@ describe('Auth', () => {
     });
   });
 
-  // ── Login ──────────────────────────────────────────────────────────────────
+  // Login
   describe('POST /api/auth/login', () => {
     it('returns 200 and a JWT token on valid credentials', async () => {
       const res = await api.post('/api/auth/login').send({
@@ -94,7 +94,7 @@ describe('Auth', () => {
     });
   });
 
-  // ── Logout ────────────────────────────────────────────────────────────────
+  // Logout
   describe('POST /api/auth/logout', () => {
     it('returns 200 for valid token', async () => {
       const email = uniqueEmail('logout');
@@ -148,7 +148,7 @@ describe('Auth', () => {
     });
   });
 
-  // ── Change password ───────────────────────────────────────────────────────
+  // Change password
   describe('POST /api/auth/change-password', () => {
     it('returns 200 and a new JWT when oldPassword is correct and newPassword is strong', async () => {
       const email = uniqueEmail('changepw');
@@ -274,7 +274,7 @@ describe('Auth', () => {
     });
   });
 
-  // ── Forgot password ───────────────────────────────────────────────────────
+  // Forgot password
   describe('POST /api/auth/forgot-password', () => {
     it('returns 200 with a safe generic message for unknown email (no token leak)', async () => {
       const res = await api.post('/api/auth/forgot-password').send({
@@ -338,7 +338,7 @@ describe('Auth', () => {
     });
   });
 
-  // ── Reset password ────────────────────────────────────────────────────────
+  // Reset password
   describe('POST /api/auth/reset-password', () => {
     it('returns 200 for valid token and updates password successfully', async () => {
       const email = uniqueEmail('reset');
@@ -469,7 +469,7 @@ describe('Auth', () => {
     });
   });
 
-  // ── Invite (ADMIN) ─────────────────────────────────────────────────────────
+  // Invite (ADMIN)
   describe('POST /api/auth/invite', () => {
     it('returns 201 and an invite token for ADMIN', async () => {
       const email = uniqueEmail('invite');
@@ -537,7 +537,7 @@ describe('Auth', () => {
     });
   });
 
-  // ── Register via Invite ───────────────────────────────────────────────────
+  // Register via Invite
   describe('POST /api/auth/register-invite', () => {
     it('returns 201 and creates a user with the role specified in the invite', async () => {
       const email = uniqueEmail('invite-register');
@@ -626,7 +626,7 @@ describe('Auth', () => {
     });
   });
 
-  // ── Login (mustChangePassword branch) ─────────────────────────────────────
+  // Login (mustChangePassword branch)
   describe('POST /api/auth/login (mustChangePassword branch)', () => {
     it('returns mustChangePassword: true and no token when user must change password', async () => {
       const email = uniqueEmail('must-change');

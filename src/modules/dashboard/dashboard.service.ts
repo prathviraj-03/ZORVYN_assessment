@@ -137,7 +137,7 @@ export const dashboardService = {
   },
 };
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+// Helpers
 
 function formatMonthKey(date: Date): string {
   const y = date.getFullYear();

@@ -15,7 +15,7 @@ import {
 import { env } from 'process';
 
 export const authService = {
-  // ── Register (public — always VIEWER) ───────────────────────────────────────
+  // Register (public — always VIEWER)
   async register(dto: RegisterDto) {
     const existing = await prisma.user.findUnique({
       where: { email: dto.email },
@@ -46,7 +46,7 @@ export const authService = {
     return user;
   },
 
-  // ── Login ────────────────────────────────────────────────────────────────────
+  // Login
   async login(dto: LoginDto) {
     const user = await prisma.user.findUnique({
       where: { email: dto.email },
@@ -89,7 +89,7 @@ export const authService = {
     };
   },
 
-  // ── Change password (logged in user) ────────────────────────────────────────
+  // Change password (logged in user)
   async changePassword(userId: string, dto: ChangePasswordDto) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -127,7 +127,7 @@ export const authService = {
     return { token };
   },
 
-  // ── Forgot password — generate reset token ───────────────────────────────────
+  // Forgot password — generate reset token
   async forgotPassword(dto: ForgotPasswordDto) {
     const user = await prisma.user.findUnique({
       where: { email: dto.email },
@@ -170,7 +170,7 @@ export const authService = {
     return safeResponse;
   },
 
-  // ── Reset password — use token to set new password ───────────────────────────
+  // Reset password — use token to set new password
   async resetPassword(dto: ResetPasswordDto) {
     const user = await prisma.user.findFirst({
       where: {
@@ -202,7 +202,7 @@ export const authService = {
     };
   },
 
-  // ── Send Invite (admin only) ─────────────────────────────────────────────────
+  // Send Invite (admin only)
   async sendInvite(dto: InviteDto, adminId: string) {
     const existingUser = await prisma.user.findUnique({
       where: { email: dto.email },
@@ -238,7 +238,7 @@ export const authService = {
     };
   },
 
-  // ── Register via Invite ──────────────────────────────────────────────────────
+  // Register via Invite
   async registerViaInvite(dto: RegisterInviteDto) {
     const invite = await prisma.invite.findUnique({
       where: { token: dto.token },
@@ -285,7 +285,7 @@ export const authService = {
     return user;
   },
 
-  // ── Logout — invalidates all existing tokens for this user ───────────────────
+  // Logout — invalidates all existing tokens for this user
   async logout(userId: string) {
     await prisma.user.update({
       where: { id: userId },

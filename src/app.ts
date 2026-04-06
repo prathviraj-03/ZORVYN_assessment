@@ -14,10 +14,10 @@ import { prisma } from './lib/prisma';
 
 const app: Application = express();
 
-// ── Security headers ───────────────────────────────────────────────────────────
+// Security headers
 app.use(helmet());
 
-// ── CORS ───────────────────────────────────────────────────────────────────────
+// CORS
 app.use(
   cors({
     origin: env.NODE_ENV === 'production' ? (env.ALLOWED_ORIGIN ?? 'http://localhost:3000') : '*',
@@ -27,14 +27,14 @@ app.use(
   }),
 );
 
-// ── Request logging ────────────────────────────────────────────────────────────
+// Request logging
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-// ── Body parsing ───────────────────────────────────────────────────────────────
+// Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ── Rate limiting ──────────────────────────────────────────────────────────────
+// Rate limiting
 // Apply rate limiter only in production
 if (env.NODE_ENV === 'production') {
   app.use('/api', generalLimiter);
@@ -43,7 +43,7 @@ if (env.NODE_ENV === 'production') {
   app.use('/api/auth/reset-password', authLimiter);
 }
 
-// ── Health check ───────────────────────────────────────────────────────────────
+// Health check
 app.get('/health', async (_req: Request, res: Response) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -62,7 +62,7 @@ app.get('/health', async (_req: Request, res: Response) => {
   }
 });
 
-// ── Root ───────────────────────────────────────────────────────────────────────
+// Root
 app.get('/', (_req: Request, res: Response) => {
   res.status(200).json({
     status: 'ok',
@@ -71,13 +71,13 @@ app.get('/', (_req: Request, res: Response) => {
   });
 });
 
-// ── Routes ─────────────────────────────────────────────────────────────────────
+// Routes
 app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/records', recordsRouter);
 app.use('/api/dashboard', dashboardRouter);
 
-// ── Global error handler ───────────────────────────────────────────────────────
+// Global error handler
 app.use(errorHandler);
 
 export { app };
